@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { User, UserSchema } from '../../model/schema/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 
 describe('UserService', () => {
@@ -38,6 +39,22 @@ describe('UserService', () => {
     const retrievedUser = await userService.retrieveUser(user.key);
     expect(retrievedUser).toBeDefined();
     expect(retrievedUser.key).toEqual(user.key);
+  });
+
+  it('should save a user contact', async () => {
+    const key = uuidv4();
+    await userService.createUser(key);
+    const contactDto = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      message: 'Hi',
+    };
+    const session = { userId: key };
+    await userService.saveUserContact(contactDto, session);
+    const user = await userService.retrieveUser(session.userId);
+    expect(user).toBeDefined();
+    expect(user.contacts.length).toEqual(1);
+    expect(user.contacts[0].message).toEqual(contactDto.message);
   });
   
   afterAll(async () => {

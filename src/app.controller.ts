@@ -27,6 +27,7 @@ export class AppController {
     @Body() contactDto: ContactDto,
     @Session() session: Record<string, any>,
   ): Promise<boolean> {
+    await this.userService.saveUserContact(contactDto, session);
     return true;
   }
 }

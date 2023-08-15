@@ -4,6 +4,7 @@ import { User } from '../../model/schema/user.schema';
 import { CreateUserDto } from '../../model/dto/user-dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ContactDto } from '../../model/dto/contact-dto';
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,7 @@ export class UserService {
     return undefined;
   }
 
-  createUserIfDontExist(session) {
+  async createUserIfDontExist(session) {
     if(!session.userId){
       const newKey = uuidv4();
       session.userId = newKey;
@@ -39,4 +40,18 @@ export class UserService {
     };
     return await this.userModel.create(user);
   }
+
+  async saveUserContact(contact:ContactDto, session) {
+    try {
+      let user = await this.userModel.findOne({ key: session.userId }).exec();
+      if (!user) {
+        user = await this.createUser(uuidv4() + "_cookie_less");
+      }
+      user.contacts.push(contact);
+      await user.save();
+    } catch (error) {
+      console.error(`Error saving user contact: ${error}`);
+    }
+  }  
 }
+
