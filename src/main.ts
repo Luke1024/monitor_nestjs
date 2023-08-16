@@ -10,15 +10,15 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(
     session({
-      secret: 'my-secret',
+      secret: process.env.SECRET_KEY,
       resave: false,
       saveUninitialized: false,
-      store: new MongoStore({mongoUrl: 'mongodb://localhost:27017/session'}),
-      cookie: { maxAge: 7 * 24 * 60 * 60 * 1000, secure:false }
+      store: new MongoStore({mongoUrl: process.env.SESSION_STORE_URL}),
+      cookie: { maxAge: 1000000000, secure:false }
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   });
   await app.listen(3000);
